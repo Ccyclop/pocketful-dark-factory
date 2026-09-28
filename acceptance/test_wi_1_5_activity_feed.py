@@ -264,10 +264,12 @@ class TestOrdering:
         with running_container() as ctx:
             reset(ctx, feed_fixture())
             tokens = login_all(ctx)
-            pay(ctx, tokens["ada"], "pay-a", {"to_handle": "bob", "amount": 1, "note": "A"})
-            pay(ctx, tokens["bob"], "pay-b", {"to_handle": "cy", "amount": 2, "note": "B"})
+            r_a = pay(ctx, tokens["ada"], "pay-a", {"to_handle": "bob", "amount": 1, "note": "A"})
+            r_b = pay(ctx, tokens["bob"], "pay-b", {"to_handle": "cy", "amount": 2, "note": "B"})
+            a_id = r_a.json()["payment_id"]
+            b_id = r_b.json()["payment_id"]
             ids = payment_ids(activity(ctx, tokens["cy"]))
-            assert ids[0:2] == ["p_3", "p_2"]  # seeded newest first still; B and A may follow
+            assert ids.index(b_id) < ids.index(a_id)
 
     def test_api_payments_newest_first(self):
         with running_container() as ctx:
@@ -296,12 +298,13 @@ class TestOrdering:
                 "requests": [],
             }
             reset(ctx, fixture)
-            tokens = login_all(ctx)
-            r_a = pay(ctx, tokens["ada"], "pay-a", {"to_handle": "bob", "amount": 1, "note": "A"})
-            r_b = pay(ctx, tokens["ada"], "pay-b", {"to_handle": "bob", "amount": 2, "note": "B"})
+            ada_token = login(ctx, "ada@example.com", "correct horse")["token"]
+            bob_token = login(ctx, "bob@example.com", "battery stapler")["token"]
+            r_a = pay(ctx, ada_token, "pay-a", {"to_handle": "bob", "amount": 1, "note": "A"})
+            r_b = pay(ctx, ada_token, "pay-b", {"to_handle": "bob", "amount": 2, "note": "B"})
             a_id = r_a.json()["payment_id"]
             b_id = r_b.json()["payment_id"]
-            ids = payment_ids(activity(ctx, tokens["bob"]))
+            ids = payment_ids(activity(ctx, bob_token))
             assert ids == [b_id, a_id]
 
 
