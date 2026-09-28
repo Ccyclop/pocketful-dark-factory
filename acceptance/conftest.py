@@ -181,3 +181,15 @@ def signup(ctx: dict, email: str, password: str, display_name: str) -> requests.
 
 def me(ctx: dict, token: str) -> requests.Response:
     return api_get(ctx, "/me", token=token)
+
+
+def pay(ctx: dict, token: str, key: str | None, body: dict) -> requests.Response:
+    headers = {}
+    if key is not None:
+        headers["Idempotency-Key"] = key
+    return requests.post(
+        f"{ctx['url']}/payments",
+        json=body,
+        headers=headers,
+        timeout=REQUEST_TIMEOUT,
+    )
