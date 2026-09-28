@@ -5,7 +5,6 @@
 """
 from __future__ import annotations
 
-import re
 import sqlite3
 from dataclasses import dataclass, field
 from typing import Any
@@ -14,17 +13,12 @@ from . import timeutil
 from .db import MAX_BALANCE, clear_state
 from .jsonbody import integral, invalid
 from .security import hash_passwords
+from .users import HANDLE_RE, email_key
 
-HANDLE_RE = re.compile(r"[a-z0-9_]{1,20}")
 MINOR_UNITS = (0, 2, 3)
 MAX_AMOUNT = 1_000_000_000
 VISIBILITIES = ("public", "private")
 STATUSES = ("pending", "paid", "declined", "cancelled")
-
-
-def email_key(email: str) -> str:
-    """Emails are unique and looked up case-insensitively (D8)."""
-    return email.lower()
 
 
 @dataclass
