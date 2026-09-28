@@ -197,3 +197,19 @@ def pay(ctx: dict, token: str, key: str | None, body: dict) -> requests.Response
 
 def activity(ctx: dict, token: str, params: dict | None = None) -> requests.Response:
     return api_get(ctx, "/activity", token=token, params=params)
+
+
+def request_post(ctx: dict, token: str, key: str | None, body: dict) -> requests.Response:
+    headers = {"Authorization": f"Bearer {token}"}
+    if key is not None:
+        headers["Idempotency-Key"] = key
+    return requests.post(
+        f"{ctx['url']}/requests",
+        json=body,
+        headers=headers,
+        timeout=REQUEST_TIMEOUT,
+    )
+
+
+def requests_list(ctx: dict, token: str, params: dict | None = None) -> requests.Response:
+    return api_get(ctx, "/requests", token=token, params=params)
