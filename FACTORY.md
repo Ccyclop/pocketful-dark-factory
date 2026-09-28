@@ -88,6 +88,7 @@ The room's work board mirrors the gates: an item is marked completed only by the
 - **Permission prompts:** an unattended OpenCode session auto-rejects every "ask", and BAND's "approve all" would approve every one. Permissions are therefore explicit allow and deny rules, with deny as the default outside the seat's clone.
 - **The board:** in our first run the implementer marked its item done at handoff, before review. The board rule now ties completion to the gate that closes each item.
 - **Asking the human:** our first planner mandate allowed one question with a default. A dark-factory run allows none, so decisions are now made and logged inside the band.
+- **Invented output:** asked for a command's output, a seat once answered without running it and made up a result. Every mandate now requires reported results to come from a command the seat ran, with the command and its raw output.
 - **Machine sleep** froze a run mid-request; the band recovered from the repository, but the fix is simply to keep the machine awake for a run.
 
 ## Standing it up
