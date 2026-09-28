@@ -130,3 +130,10 @@ the check run is expected to fail.
 to the requester for the request's `amount`, and has `settlement_id: null`. Reason: §8 says pay
 returns a payment "exactly as `POST /payments` returns one", and the pay body carries only
 `visibility`, so the note can only come from the request.
+
+**D24. WI-1.1 criteria 2 and 6 (no outbound network) are verified on an isolated network.**
+Docker does not publish `-p` ports for a `--network none` container, so the literal command in the
+criterion cannot be reached from the host. Criteria 2 and 6 are satisfied by either (a) `--network
+none` with the request made from inside the container, or (b) a `docker network create --internal`
+network with the request made from another container on it. Host-reachable checks of criteria 2–5
+use the default bridge. This changes how the criterion is observed, not what it requires.
