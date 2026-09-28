@@ -125,3 +125,8 @@ unparseable body is 400. Export and import each run in one transaction.
 
 **D22. Stage-1 folder builds no stage-2 behaviour** (no HTML screens). The stage-2 suite line in
 the check run is expected to fail.
+
+**D23. The payment created by paying a request copies the request's `note`**, goes from the payer
+to the requester for the request's `amount`, and has `settlement_id: null`. Reason: §8 says pay
+returns a payment "exactly as `POST /payments` returns one", and the pay body carries only
+`visibility`, so the note can only come from the request.
