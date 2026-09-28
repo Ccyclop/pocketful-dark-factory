@@ -241,3 +241,15 @@ def request_cancel(ctx: dict, token: str, request_id: str) -> requests.Response:
         headers={"Authorization": f"Bearer {token}"},
         timeout=REQUEST_TIMEOUT,
     )
+
+
+def split(ctx: dict, token: str, key: str | None, body: dict) -> requests.Response:
+    headers = {"Authorization": f"Bearer {token}"}
+    if key is not None:
+        headers["Idempotency-Key"] = key
+    return requests.post(
+        f"{ctx['url']}/splits",
+        json=body,
+        headers=headers,
+        timeout=REQUEST_TIMEOUT,
+    )
