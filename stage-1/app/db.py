@@ -72,6 +72,16 @@ SCHEMA: list[str] = [
     )""",
     """CREATE INDEX requests_requester ON requests (requester_id)""",
     """CREATE INDEX requests_payer ON requests (payer_id)""",
+    # A split's own record; its requests are ordinary rows in `requests`.
+    """CREATE TABLE splits (
+        seq          INTEGER PRIMARY KEY AUTOINCREMENT,
+        id           TEXT    NOT NULL UNIQUE,
+        requester_id TEXT    NOT NULL REFERENCES users (id),
+        amount       INTEGER NOT NULL,
+        note         TEXT    NOT NULL,
+        created_at   TEXT    NOT NULL,
+        created_ts   REAL    NOT NULL
+    )""",
     # One row per claimed idempotency key (D2): only a 2xx outcome is stored.
     """CREATE TABLE idempotency (
         user_id     TEXT    NOT NULL REFERENCES users (id),
@@ -86,7 +96,8 @@ SCHEMA: list[str] = [
 ]
 
 # Every table holding service state, children first, so clearing respects foreign keys.
-STATE_TABLES = ("idempotency", "tokens", "payments", "requests", "users", "service")
+STATE_TABLES = ("idempotency", "tokens", "payments", "requests", "splits", "users",
+                "service")
 
 
 class Database:
