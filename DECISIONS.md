@@ -137,3 +137,11 @@ criterion cannot be reached from the host. Criteria 2 and 6 are satisfied by eit
 none` with the request made from inside the container, or (b) a `docker network create --internal`
 network with the request made from another container on it. Host-reachable checks of criteria 2–5
 use the default bridge. This changes how the criterion is observed, not what it requires.
+
+**D25. Reset fixture field types** (extends D12). On `POST /_test/reset`, a fixture field of the
+wrong JSON type (e.g. `"balance": "100"`, `"users": {}`) is 422 `validation_failed`, like any other
+invalid fixture; 400 `malformed_request` is only for a body that does not parse or is not an
+object. Seeded emails and passwords are not checked for form or length; a missing seeded
+`display_name` defaults to the handle; seeded request amounts may be 0..1e9 (D16), seeded payment
+amounts 1..1e9. Reason: §4 calls a bad fixture "a reset error: return 422"; the fixture is test
+input and must load whatever valid-enough data the harness sends.
