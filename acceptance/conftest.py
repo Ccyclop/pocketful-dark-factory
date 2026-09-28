@@ -253,3 +253,15 @@ def split(ctx: dict, token: str, key: str | None, body: dict) -> requests.Respon
         headers=headers,
         timeout=REQUEST_TIMEOUT,
     )
+
+
+def settlement(ctx: dict, token: str, key: str | None, body: dict) -> requests.Response:
+    headers = {"Authorization": f"Bearer {token}"}
+    if key is not None:
+        headers["Idempotency-Key"] = key
+    return requests.post(
+        f"{ctx['url']}/settlements",
+        json=body,
+        headers=headers,
+        timeout=REQUEST_TIMEOUT,
+    )
