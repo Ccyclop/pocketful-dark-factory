@@ -213,3 +213,31 @@ def request_post(ctx: dict, token: str, key: str | None, body: dict) -> requests
 
 def requests_list(ctx: dict, token: str, params: dict | None = None) -> requests.Response:
     return api_get(ctx, "/requests", token=token, params=params)
+
+
+def request_pay(ctx: dict, token: str, request_id: str, key: str | None, body: dict | None = None) -> requests.Response:
+    headers = {"Authorization": f"Bearer {token}"}
+    if key is not None:
+        headers["Idempotency-Key"] = key
+    return requests.post(
+        f"{ctx['url']}/requests/{request_id}/pay",
+        json=body if body is not None else {},
+        headers=headers,
+        timeout=REQUEST_TIMEOUT,
+    )
+
+
+def request_decline(ctx: dict, token: str, request_id: str) -> requests.Response:
+    return requests.post(
+        f"{ctx['url']}/requests/{request_id}/decline",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=REQUEST_TIMEOUT,
+    )
+
+
+def request_cancel(ctx: dict, token: str, request_id: str) -> requests.Response:
+    return requests.post(
+        f"{ctx['url']}/requests/{request_id}/cancel",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=REQUEST_TIMEOUT,
+    )
