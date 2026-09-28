@@ -265,3 +265,15 @@ def settlement(ctx: dict, token: str, key: str | None, body: dict) -> requests.R
         headers=headers,
         timeout=REQUEST_TIMEOUT,
     )
+
+
+def export_state(ctx: dict) -> requests.Response:
+    return requests.get(f"{ctx['url']}/_test/export", timeout=RESET_TIMEOUT)
+
+
+def import_state(ctx: dict, payload: dict) -> requests.Response:
+    return requests.post(
+        f"{ctx['url']}/_test/import",
+        json=payload,
+        timeout=RESET_TIMEOUT,
+    )
