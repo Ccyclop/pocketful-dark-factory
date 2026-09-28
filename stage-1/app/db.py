@@ -33,7 +33,7 @@ SCHEMA: list[str] = [
         display_name  TEXT    NOT NULL,
         handle        TEXT    NOT NULL UNIQUE,
         balance       INTEGER NOT NULL CHECK (balance >= 0 AND balance <= {MAX_BALANCE}),
-        is_operator   INTEGER NOT NULL DEFAULT 0
+        is_operator   INTEGER NOT NULL DEFAULT 0 CHECK (is_operator IN (0, 1))
     )""",
     # Only a digest of each bearer token is stored.
     """CREATE TABLE tokens (
