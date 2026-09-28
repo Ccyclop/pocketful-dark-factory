@@ -1,0 +1,16 @@
+# secrets and local config: never commit
+.env
+.env.*
+*.pem
+*.key
+.claude/settings.local.json
+
+# per-seat OpenCode files, created by factory/setup.sh
+/opencode.json
+/AGENTS.md
+
+# local tooling and check output
+.venv/
+checks/
+__pycache__/
+.DS_Store
