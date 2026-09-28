@@ -72,16 +72,29 @@ SCHEMA: list[str] = [
     )""",
     """CREATE INDEX requests_requester ON requests (requester_id)""",
     """CREATE INDEX requests_payer ON requests (payer_id)""",
+    # One row per claimed idempotency key (D2): only a 2xx outcome is stored.
+    """CREATE TABLE idempotency (
+        user_id     TEXT    NOT NULL REFERENCES users (id),
+        method      TEXT    NOT NULL,
+        path        TEXT    NOT NULL,
+        key         TEXT    NOT NULL,
+        fingerprint TEXT    NOT NULL,
+        status      INTEGER NOT NULL,
+        response    TEXT    NOT NULL,
+        PRIMARY KEY (user_id, method, path, key)
+    )""",
 ]
 
 # Every table holding service state, children first, so clearing respects foreign keys.
-STATE_TABLES = ("tokens", "payments", "requests", "users", "service")
+STATE_TABLES = ("idempotency", "tokens", "payments", "requests", "users", "service")
 
 
 class Database:
     def __init__(self, path: str) -> None:
         self.path = path
         self._local = threading.local()
+        # One writer at a time, queued here rather than in SQLite's busy-retry loop.
+        self._write_lock = threading.Lock()
 
     def initialize(self, fresh: bool = True) -> None:
         """Create the database file and schema. State need not survive a restart."""
@@ -133,7 +146,7 @@ class Database:
     @contextlib.contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
         """A write transaction: commits on success, rolls back on any exception."""
-        with self._transaction(self.connection()) as conn:
+        with self._write_lock, self._transaction(self.connection()) as conn:
             yield conn
 
     @contextlib.contextmanager
