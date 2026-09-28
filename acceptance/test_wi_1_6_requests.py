@@ -306,9 +306,9 @@ class TestListRequests:
                     "created_at": "2025-01-04T12:00:00+00:00",
                 },
                 {
-                    "id": "r_cy",
-                    "requester_id": "u_cy",
-                    "payer_id": "u_bob",
+                    "id": "r_in_pending",
+                    "requester_id": "u_bob",
+                    "payer_id": "u_ada",
                     "amount": 50,
                     "status": "pending",
                     "created_at": "2025-01-05T12:00:00+00:00",
@@ -321,9 +321,9 @@ class TestListRequests:
             reset(ctx, self.fixture_with_statuses())
             tokens = login_all(ctx)
             ada_token = tokens["ada"]
-            assert request_ids(requests_list(ctx, ada_token, {"direction": "incoming"})) == ["r_in_cancelled", "r_in_declined"]
+            assert request_ids(requests_list(ctx, ada_token, {"direction": "incoming"})) == ["r_in_pending", "r_in_cancelled", "r_in_declined"]
             assert request_ids(requests_list(ctx, ada_token, {"direction": "outgoing"})) == ["r_out_paid", "r_out_pending"]
-            assert request_ids(requests_list(ctx, ada_token)) == ["r_in_cancelled", "r_in_declined", "r_out_paid", "r_out_pending"]
+            assert request_ids(requests_list(ctx, ada_token)) == ["r_in_pending", "r_in_cancelled", "r_in_declined", "r_out_paid", "r_out_pending"]
             assert request_ids(requests_list(ctx, tokens["cy"])) == []
 
     def test_status_filter(self):
@@ -331,7 +331,7 @@ class TestListRequests:
             reset(ctx, self.fixture_with_statuses())
             tokens = login_all(ctx)
             for status, expected in [
-                ("pending", ["r_out_pending"]),
+                ("pending", ["r_in_pending", "r_out_pending"]),
                 ("paid", ["r_out_paid"]),
                 ("declined", ["r_in_declined"]),
                 ("cancelled", ["r_in_cancelled"]),
@@ -350,11 +350,14 @@ class TestListRequests:
             reset(ctx, self.fixture_with_statuses())
             tokens = login_all(ctx)
             page1 = requests_list(ctx, tokens["ada"], {"limit": "2", "offset": "0"}).json()
-            assert [r["request_id"] for r in page1["requests"]] == ["r_in_cancelled", "r_in_declined"]
+            assert [r["request_id"] for r in page1["requests"]] == ["r_in_pending", "r_in_cancelled"]
             assert page1["has_more"] is True
             page2 = requests_list(ctx, tokens["ada"], {"limit": "2", "offset": "2"}).json()
-            assert [r["request_id"] for r in page2["requests"]] == ["r_out_paid", "r_out_pending"]
-            assert page2["has_more"] is False
+            assert [r["request_id"] for r in page2["requests"]] == ["r_in_declined", "r_out_paid"]
+            assert page2["has_more"] is True
+            page3 = requests_list(ctx, tokens["ada"], {"limit": "2", "offset": "4"}).json()
+            assert [r["request_id"] for r in page3["requests"]] == ["r_out_pending"]
+            assert page3["has_more"] is False
 
 
 class TestListValidation:
