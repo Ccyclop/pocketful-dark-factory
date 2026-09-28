@@ -1,33 +1,9 @@
 from __future__ import annotations
 
 import pytest
-from fastapi.testclient import TestClient
 
-from app.config import Settings, load_settings
-from app.main import create_app
-
-JSON_UTF8 = "application/json; charset=utf-8"
-
-
-@pytest.fixture
-def app(tmp_path):
-    return create_app(Settings(host="0.0.0.0", port=8080,
-                               database_path=str(tmp_path / "db.sqlite3")))
-
-
-@pytest.fixture
-def client(app):
-    with TestClient(app, raise_server_exceptions=False) as c:
-        yield c
-
-
-def assert_error(resp, status, code):
-    assert resp.status_code == status
-    assert resp.headers["content-type"] == JSON_UTF8
-    body = resp.json()
-    assert set(body) == {"error"}
-    assert body["error"]["code"] == code
-    assert isinstance(body["error"]["message"], str)
+from app.config import load_settings
+from conftest import JSON_UTF8, assert_error
 
 
 def test_health(client):
