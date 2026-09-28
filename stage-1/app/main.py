@@ -10,7 +10,8 @@ from . import errors
 from .config import Settings, load_settings
 from .db import Database
 from .responses import JsonResponse
-from .routers import activity, auth, health, me, payments, requests, test_control
+from .routers import (activity, auth, health, me, payments, request_actions, requests,
+                      test_control)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -42,4 +43,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(payments.router)
     app.include_router(activity.router)
     app.include_router(requests.router)
+    app.include_router(request_actions.router)
     return app

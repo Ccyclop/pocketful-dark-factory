@@ -53,6 +53,17 @@ async def json_object(request: Request) -> dict[str, Any]:
     return body
 
 
+async def json_object_or_empty(request: Request) -> dict[str, Any]:
+    """Like `json_object`, but an empty body is `{}` (D14: the pay body is optional)."""
+    raw = await request.body()
+    if not raw.strip():
+        return {}
+    body = parse_json(raw)
+    if not isinstance(body, dict):
+        raise malformed("request body must be a JSON object")
+    return body
+
+
 def integral(value: Any) -> int | None:
     """The exact integer a JSON number stands for, or None if it is not one.
 
