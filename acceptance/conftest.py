@@ -129,6 +129,33 @@ def api_get(ctx: dict, path: str, *, token: str | None = None, timeout=REQUEST_T
     return requests.get(f"{ctx['url']}{path}", headers=headers, timeout=timeout)
 
 
+def eur_fixture():
+    return {
+        "currency": "EUR",
+        "minor_units": 2,
+        "users": [
+            {
+                "id": "u_ada",
+                "email": "ada@example.com",
+                "password": "correct horse",
+                "display_name": "Ada",
+                "handle": "ada",
+                "balance": 10000,
+            },
+            {
+                "id": "u_bob",
+                "email": "bob@example.com",
+                "password": "battery stapler",
+                "display_name": "Bob",
+                "handle": "bob",
+                "balance": 2500,
+            },
+        ],
+        "payments": [],
+        "requests": [],
+    }
+
+
 def reset(ctx: dict, fixture: dict):
     r = api_post(ctx, "/_test/reset", json_body=fixture, timeout=RESET_TIMEOUT)
     assert r.status_code == 204, f"reset failed: {r.status_code} {r.text}"
@@ -142,6 +169,14 @@ def login(ctx: dict, email: str, password: str) -> dict:
     body = r.json()
     assert "token" in body and body["token"]
     return body
+
+
+def signup(ctx: dict, email: str, password: str, display_name: str) -> requests.Response:
+    return api_post(
+        ctx,
+        "/auth/signup",
+        json_body={"email": email, "password": password, "display_name": display_name},
+    )
 
 
 def me(ctx: dict, token: str) -> requests.Response:
