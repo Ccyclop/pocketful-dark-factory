@@ -235,8 +235,10 @@ class TestConcurrentSignup:
 
             def do_signup(i: int):
                 try:
+                    # Same local part on different domains -> same handle "race_x",
+                    # but each email is unique.
                     results.append(
-                        signup(ctx, f"race{i}.x@example.com", "correct horse", "Race")
+                        signup(ctx, f"race.x@{i}.example.com", "correct horse", "Race")
                     )
                 except Exception as exc:
                     errors.append(exc)
