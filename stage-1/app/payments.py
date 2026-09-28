@@ -44,6 +44,16 @@ def transfer(conn: sqlite3.Connection, *, from_user_id: str, to_user_id: str, am
     if debited != 1:
         raise insufficient_funds()
     conn.execute("UPDATE users SET balance = balance + ? WHERE id = ?", (amount, to_user_id))
+    return insert_payment(conn, from_user_id=from_user_id, to_user_id=to_user_id,
+                          amount=amount, note=note, visibility=visibility,
+                          request_id=request_id, settlement_id=settlement_id, created=created)
+
+
+def insert_payment(conn: sqlite3.Connection, *, from_user_id: str, to_user_id: str,
+                   amount: int, note: str, visibility: str, request_id: str | None = None,
+                   settlement_id: str | None = None,
+                   created: tuple[str, float] | None = None) -> str:
+    """Record a payment row only; the caller has already moved the money."""
     payment_id = new_id("p")
     created_at, created_ts = created or timeutil.now()
     conn.execute(

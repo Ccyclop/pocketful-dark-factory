@@ -82,6 +82,14 @@ SCHEMA: list[str] = [
         created_at   TEXT    NOT NULL,
         created_ts   REAL    NOT NULL
     )""",
+    # A committed settlement; its members are payments carrying its id.
+    """CREATE TABLE settlements (
+        seq          INTEGER PRIMARY KEY AUTOINCREMENT,
+        id           TEXT    NOT NULL UNIQUE,
+        operator_id  TEXT    NOT NULL REFERENCES users (id),
+        committed_at TEXT    NOT NULL,
+        created_ts   REAL    NOT NULL
+    )""",
     # One row per claimed idempotency key (D2): only a 2xx outcome is stored.
     """CREATE TABLE idempotency (
         user_id     TEXT    NOT NULL REFERENCES users (id),
@@ -96,8 +104,8 @@ SCHEMA: list[str] = [
 ]
 
 # Every table holding service state, children first, so clearing respects foreign keys.
-STATE_TABLES = ("idempotency", "tokens", "payments", "requests", "splits", "users",
-                "service")
+STATE_TABLES = ("idempotency", "tokens", "payments", "requests", "splits", "settlements",
+                "users", "service")
 
 
 class Database:
