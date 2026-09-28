@@ -19,6 +19,7 @@ from conftest import (
     pay,
     reset,
     running_container,
+    signup,
 )
 
 
