@@ -145,3 +145,8 @@ object. Seeded emails and passwords are not checked for form or length; a missin
 `display_name` defaults to the handle; seeded request amounts may be 0..1e9 (D16), seeded payment
 amounts 1..1e9. Reason: §4 calls a bad fixture "a reset error: return 422"; the fixture is test
 input and must load whatever valid-enough data the harness sends.
+
+**D26. An empty query value is not "absent".** `direction=`, `status=`, `limit=` and `offset=` with
+an empty value are 422 `validation_failed`; only omitting the parameter selects the default.
+Reason: §8 makes an unknown `direction`/`status` value 422, and §5 requires integer query
+parameters to be plain decimal digits; an empty string is neither a known value nor digits.
