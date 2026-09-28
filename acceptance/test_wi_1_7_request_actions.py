@@ -39,7 +39,7 @@ def action_fixture():
                 "password": "correct horse",
                 "display_name": "Ada",
                 "handle": "ada",
-                "balance": 100,
+                "balance": 5000,
             },
             {
                 "id": "u_bob",
@@ -119,7 +119,7 @@ class TestPayRequest:
             payment = r.json()
             assert_payment_matches_request(payment, rid, "taxi", "private")
 
-            assert me(ctx, tokens["ada"]).json()["balance"] == -1100
+            assert me(ctx, tokens["ada"]).json()["balance"] == 3800
             assert me(ctx, tokens["bob"]).json()["balance"] == 11200
 
             req = requests_list(ctx, tokens["bob"]).json()["requests"][0]
@@ -153,7 +153,7 @@ class TestPayRequest:
             r2 = request_pay(ctx, tokens["ada"], rid, "pay-key", {})
             assert r2.status_code == 200
             assert r2.json() == original
-            assert me(ctx, tokens["ada"]).json()["balance"] == -1100
+            assert me(ctx, tokens["ada"]).json()["balance"] == 3800
 
     def test_different_body_reuse(self):
         with running_container() as ctx:
@@ -215,20 +215,20 @@ class TestInsufficientFunds:
         with running_container() as ctx:
             reset(ctx, action_fixture())
             tokens = login_all(ctx)
-            rid = create_request(ctx, tokens["bob"], amount=5000)
+            rid = create_request(ctx, tokens["bob"], amount=6000)
             r1 = request_pay(ctx, tokens["ada"], rid, "k1", {})
             assert r1.status_code == 409
             assert_error_envelope(r1.json(), "insufficient_funds")
 
             assert requests_list(ctx, tokens["bob"]).json()["requests"][0]["status"] == "pending"
 
-            pay(ctx, tokens["bob"], "fund", {"to_handle": "ada", "amount": 5000})
-            assert me(ctx, tokens["ada"]).json()["balance"] == 5100
+            pay(ctx, tokens["bob"], "fund", {"to_handle": "ada", "amount": 6000})
+            assert me(ctx, tokens["ada"]).json()["balance"] == 11000
 
             r2 = request_pay(ctx, tokens["ada"], rid, "k1", {})
             assert r2.status_code == 201
-            assert r2.json()["amount"] == 5000
-            assert me(ctx, tokens["ada"]).json()["balance"] == 100
+            assert r2.json()["amount"] == 6000
+            assert me(ctx, tokens["ada"]).json()["balance"] == 5000
 
 
 class TestDeclineCancel:
@@ -318,7 +318,7 @@ class TestConcurrentPay:
 
             req = requests_list(ctx, tokens["bob"]).json()["requests"][0]
             assert req["status"] == "paid"
-            assert me(ctx, tokens["ada"]).json()["balance"] == -1100
+            assert me(ctx, tokens["ada"]).json()["balance"] == 3800
 
     def test_concurrent_same_key(self):
         with running_container() as ctx:
@@ -383,9 +383,9 @@ class TestConcurrentPay:
             req = requests_list(ctx, tokens["bob"]).json()["requests"][0]
             assert req["status"] in ("paid", "declined", "cancelled")
             if req["status"] == "paid":
-                assert me(ctx, tokens["ada"]).json()["balance"] == -1100
+                assert me(ctx, tokens["ada"]).json()["balance"] == 3800
             else:
-                assert me(ctx, tokens["ada"]).json()["balance"] == 100
+                assert me(ctx, tokens["ada"]).json()["balance"] == 5000
 
 
 class TestSeededStates:
