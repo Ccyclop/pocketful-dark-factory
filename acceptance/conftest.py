@@ -122,11 +122,11 @@ def api_post(ctx: dict, path: str, *, json_body=None, token: str | None = None, 
     return requests.post(f"{ctx['url']}{path}", json=json_body, headers=headers, timeout=timeout)
 
 
-def api_get(ctx: dict, path: str, *, token: str | None = None, timeout=REQUEST_TIMEOUT):
+def api_get(ctx: dict, path: str, *, token: str | None = None, params: dict | None = None, timeout=REQUEST_TIMEOUT):
     headers = {}
     if token:
         headers["Authorization"] = f"Bearer {token}"
-    return requests.get(f"{ctx['url']}{path}", headers=headers, timeout=timeout)
+    return requests.get(f"{ctx['url']}{path}", params=params, headers=headers, timeout=timeout)
 
 
 def eur_fixture():
@@ -193,3 +193,7 @@ def pay(ctx: dict, token: str, key: str | None, body: dict) -> requests.Response
         headers=headers,
         timeout=REQUEST_TIMEOUT,
     )
+
+
+def activity(ctx: dict, token: str, params: dict | None = None) -> requests.Response:
+    return api_get(ctx, "/activity", token=token, params=params)
